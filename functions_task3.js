@@ -26,4 +26,4 @@ function doubleNumberPromise(num) {
 getRandomNumberPromise()
 .then((randomNum) => doubleNumberPromise(randomNum)) 
 .then((doubledNum) => console.log(`Result: ${doubledNum}`))
-.catch((err) => console.log(err))
+.catch((err) => console.log(`Error: ${err.message}`))
