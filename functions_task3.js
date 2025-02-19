@@ -10,3 +10,15 @@ function geRandomNumberPromise() {
         }, 1000);
     });
 }
+
+function doubleNumberPromise(num) {
+    return new Promise ((resolve, reject) => {
+        setTimeout (() => {
+            if (num > 50) {
+                reject(new Error("Number is greater than 50"));
+            } else {
+                num *= 2;
+            }
+        }, 500);
+    });
+}
