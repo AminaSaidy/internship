@@ -10,3 +10,17 @@ function makeRequestPromise(url) {
         }, 1500);  
     })
 }
+
+makeRequestPromise('/user') 
+.then((data) => {
+    console.log(data);
+    return makeRequestPromise('/posts');
+})
+.then((data) => {
+    console.log(data);
+    return makeRequestPromise('/comments');
+})
+.then((data) => {
+    console.log(data);
+})
+.catch((err) => console.log(`Error: ${err.message}`))
