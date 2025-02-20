@@ -13,4 +13,18 @@ async function loadUsers() {
     }
 }
 
+async function loadUsers2() {
+    let url = "https://jsonplaceholder.typicode.com/users";
+    fetch(url)
+    .then((response) => {
+        if(!response.ok) {
+            throw new Error(`Response error: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then((json) => {console.log(json)})
+    .catch((error) => {console.error(error.message)})
+}
+
 loadUsers();
+loadUsers2();
