@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const port = 3000;
-const one_page_size = 5;
+const pageSize = 5;
 
 class School {
     constructor(number, name, classesAmount, teachersAmount, status){
@@ -31,8 +31,28 @@ function generateSchool(amount) {
 
 let listOfSchools = generateSchool(25);
 
-app.get('/', (req, res) => {
-    res.send("Hi");
+app.get('/api/school', (req, res) => {
+    //получаем номер страницы. по умолчанию 1, а если превышает колво страниц - 404 ошибка
+    let page = parseInt(req.query.page) || 1;
+    if(page < 1) page = 1;
+    
+    let schoolsAmount = listOfSchools.length;
+    let pagesAmount = Math.ceil(listOfSchools/pageSize);
+
+    if(page > pagesAmount) {
+        return res.status(404).json({message: "Page not found"});
+    }
+
+    //индексы школ, которые будут выведены на конкретной странице
+    const startIndex = (page - 1) * pageSize;
+    let paginatedListSchools = listOfSchools.slice(startIndex, startIndex + pageSize);
+
+    res.json({
+        schools: paginatedListSchools,
+        currentPage: page,
+        schoolsAmount: schoolsAmount,
+        pagesAmount: pagesAmount
+    });
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
