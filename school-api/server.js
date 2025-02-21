@@ -26,7 +26,10 @@ function generateSchool(amount) {
             )
         );
     }
+    return schools;
 }
+
+let listOfSchools = generateSchool(25);
 
 app.get('/', (req, res) => {
     res.send("Hi");
