@@ -13,6 +13,21 @@ class School {
     }
 }
 
+function generateSchool(amount) {
+    let schools = [];
+    for(let i = 0; i < amount; i++) {
+        schools.push(
+            new School(
+                i, 
+                `State School #${i}`,
+                Math.floor(Math.random() * 30) + 10,
+                Math.floor(Math,random() * 40) + 20,
+                Math.random() < 0.5
+            )
+        );
+    }
+}
+
 app.get('/', (req, res) => {
     res.send("Hi");
 });
