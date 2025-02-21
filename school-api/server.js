@@ -37,7 +37,7 @@ app.get('/api/school', (req, res) => {
     if(page < 1) page = 1;
     
     let schoolsAmount = listOfSchools.length;
-    let pagesAmount = Math.ceil(listOfSchools/pageSize);
+    let pagesAmount = Math.ceil(schoolsAmount/pageSize);
 
     if(page > pagesAmount) {
         return res.status(404).json({message: "Page not found"});
