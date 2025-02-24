@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const {Pool} = require('pg');
 const express = require('express');
 const app = express();
@@ -5,6 +7,14 @@ const port = 3000;
 const pageSize = 5;
 
 app.use(express.json());
+
+const pool = new Pool({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT
+})
 
 class School {
     constructor(number, name, classesAmount, teachersAmount, status){
