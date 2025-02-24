@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/.env' });
 
 const {Pool} = require('pg');
 const express = require('express');
@@ -80,7 +80,7 @@ app.post("/school", async (req, res) => {
             "INSERT INTO schools (number, name, classes_amount, teachers_amount, status) VALUES ($1, $2, $3, $4, $5) RETURNING *", 
             [number, name, classesAmount, teachersAmount, status]
         );
-        res.status(201).json({message: "School was added successfully."});
+        res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error(error);
         res.status(500).json({message: "Error occured."});
