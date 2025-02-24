@@ -76,6 +76,30 @@ app.get('/api/school', async (req, res) => {
 }
 });
 
+app.get("/school/:id", async (req, res) => {
+    let schoolId = parseInt(req.params.id);
+
+    if (isNaN(schoolId)) {
+        return res.status(400).json({message: "Invalid school ID"});
+    }
+
+    try {
+        let result = await pool.query(
+            "SELECT * FROM schools WHERE id = $1", 
+            [schoolId]
+        );
+
+        if(result.rows.length === 0) {
+            return res.status(404).json({message: "School was not found"});
+        }
+
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({message: "Database error"});
+    }
+});
+
 app.post("/school", async (req, res) => {
     const {number, name, classesAmount, teachersAmount, status} = req.body;
 
