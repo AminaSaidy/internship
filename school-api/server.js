@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/.env' });
 
 const {Pool} = require('pg');
 const express = require('express');
@@ -26,46 +26,78 @@ class School {
     }
 }
 
-function generateSchool(amount) {
-    let schools = [];
-    for(let i = 0; i < amount; i++) {
-        schools.push(
-            new School(
-                i, 
-                `State School #${i}`,
-                Math.floor(Math.random() * 30) + 10,
-                Math.floor(Math.random() * 40) + 20,
-                Math.random() < 0.5
-            )
-        );
-    }
-    return schools;
-}
+// function generateSchool(amount) {
+//     let schools = [];
+//     for(let i = 0; i < amount; i++) {
+//         schools.push(
+//             new School(
+//                 i, 
+//                 `State School #${i}`,
+//                 Math.floor(Math.random() * 30) + 10,
+//                 Math.floor(Math.random() * 40) + 20,
+//                 Math.random() < 0.5
+//             )
+//         );
+//     }
+//     return schools;
+// }
 
-let listOfSchools = generateSchool(25);
+// let listOfSchools = generateSchool(25);
 
-app.get('/api/school', (req, res) => {
+app.get('/api/school', async (req, res) => {
     //получаем номер страницы. по умолчанию 1, а если превышает колво страниц - 404 ошибка
     let page = parseInt(req.query.page) || 1;
     if(page < 1) page = 1;
     
-    let schoolsAmount = listOfSchools.length;
-    let pagesAmount = Math.ceil(schoolsAmount/pageSize);
+    try {
+        let countSchools = await pool.query("SELECT COUNT(*) FROM schools");
+        let schoolsAmount = parseInt(countSchools.rows[0].count);
+        let pagesAmount = Math.ceil(schoolsAmount/pageSize);
 
-    if(page > pagesAmount) {
-        return res.status(404).json({message: "Page not found"});
+        if(page > pagesAmount) {
+            return res.status(404).json({message: "Page not found"});
+        }
+
+        //индексы школ, которые будут выведены на конкретной странице
+        let startIndex = (page - 1) * pageSize;
+        let result = await pool.query("SELECT * FROM schools ORDER BY id LIMIT $1 OFFSET $2",
+            [pageSize, startIndex]
+        );
+
+        res.json({
+            schools: result.rows,
+            currentPage: page,
+            schoolsAmount,
+            pagesAmount
+        });
+    } catch (error) {
+    console.error(error);
+    res.status(500).json({message: "Database error"});
+}
+});
+
+app.get("/school/:id", async (req, res) => {
+    let schoolId = parseInt(req.params.id);
+
+    if (isNaN(schoolId)) {
+        return res.status(400).json({message: "Invalid school ID"});
     }
 
-    //индексы школ, которые будут выведены на конкретной странице
-    const startIndex = (page - 1) * pageSize;
-    let paginatedListSchools = listOfSchools.slice(startIndex, startIndex + pageSize);
+    try {
+        let result = await pool.query(
+            "SELECT * FROM schools WHERE id = $1", 
+            [schoolId]
+        );
 
-    res.json({
-        schools: paginatedListSchools,
-        currentPage: page,
-        schoolsAmount: schoolsAmount,
-        pagesAmount: pagesAmount
-    });
+        if(result.rows.length === 0) {
+            return res.status(404).json({message: "School was not found"});
+        }
+
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({message: "Database error"});
+    }
 });
 
 app.post("/school", async (req, res) => {
@@ -80,7 +112,7 @@ app.post("/school", async (req, res) => {
             "INSERT INTO schools (number, name, classes_amount, teachers_amount, status) VALUES ($1, $2, $3, $4, $5) RETURNING *", 
             [number, name, classesAmount, teachersAmount, status]
         );
-        res.status(201).json({message: "School was added successfully."});
+        res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error(error);
         res.status(500).json({message: "Error occured."});
