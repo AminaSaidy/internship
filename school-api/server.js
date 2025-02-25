@@ -17,7 +17,9 @@ const pool = new Pool({
 })
 
 const classesRouter = require("./routers/classes")(pool);
+const studentsRouter = require("./routers/students")(pool);
 app.use("/api/classes", classesRouter);
+app.use("/api/students", studentsRouter);
 
 class School {
     constructor(number, name, classesAmount, teachersAmount, status){
