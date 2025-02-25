@@ -16,6 +16,9 @@ const pool = new Pool({
     port: process.env.DB_PORT
 })
 
+const classesRouter = require("./routers/classes")(pool);
+app.use("/api/classes", classesRouter);
+
 class School {
     constructor(number, name, classesAmount, teachersAmount, status){
         this.number = number;
@@ -25,24 +28,6 @@ class School {
         this.status = status;
     }
 }
-
-// function generateSchool(amount) {
-//     let schools = [];
-//     for(let i = 0; i < amount; i++) {
-//         schools.push(
-//             new School(
-//                 i, 
-//                 `State School #${i}`,
-//                 Math.floor(Math.random() * 30) + 10,
-//                 Math.floor(Math.random() * 40) + 20,
-//                 Math.random() < 0.5
-//             )
-//         );
-//     }
-//     return schools;
-// }
-
-// let listOfSchools = generateSchool(25);
 
 app.get('/api/school', async (req, res) => {
     //получаем номер страницы. по умолчанию 1, а если превышает колво страниц - 404 ошибка
@@ -72,7 +57,7 @@ app.get('/api/school', async (req, res) => {
         });
     } catch (error) {
     console.error(error);
-    res.status(500).json({message: "Database error"});
+    res.status(500).json({message: "Internal error"});
 }
 });
 
