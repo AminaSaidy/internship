@@ -56,7 +56,7 @@ app.get('/api/school', async (req, res) => {
         });
     } catch (error) {
     console.error(error);
-    res.status(500).json({message: "Database error"});
+    res.status(500).json({message: "Internal error"});
 }
 });
 
