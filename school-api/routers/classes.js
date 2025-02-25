@@ -1,82 +1,84 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../db');
 
-router.post("/", async (req, res) => {
-    const {name, school_id, year} = req.body;
+module.exports = (pool) => {
+    router.post("/", async (req, res) => {
+        const {name, school_id, year} = req.body;
 
-    if(!name || !school_id || !year) {
-        return res.status(400).json({message: "Some required fields are empty."});
-    }
-
-    try {
-        let schoolCheck = await pool.query(
-            "SELECT if FROM schools WHERE id = $1", 
-            [school_id]
-        );
-
-        if(schoolCheck.rows.length === 0) {
-            return res.status(400).json({message: "School does not exist."}); 
+        if(!name || !school_id || !year) {
+            return res.status(400).json({message: "Some required fields are empty."});
         }
 
-        let result = await pool.query(
-            "INSERT INTO classes (name, school_id, year) VALUES ($1, $2, $3 RETURNING *)",
-            [name, school_id, year]
-        );
-        res.status(201).json(result.rows(0));
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({message: "Error occured."});
-    }
-}); 
+        try {
+            let schoolCheck = await pool.query(
+                "SELECT id FROM schools WHERE id = $1", 
+                [school_id]
+            );
 
-router.get("/", async (req, res) => {
-    let page = parseInt(req.query.page);
-    if(page < 1) page = 1;
-    let pageSize = 5;
-    let offset = (page - 1) * pageSize;
+            if(schoolCheck.rows.length === 0) {
+                return res.status(400).json({message: "School does not exist."}); 
+            }
 
-    try {
-        let countClasses = await pool.query("SELECT COUNT(*) FROM classes");
-        let classesAmount = parseInt(countClasses.rows[0].count);
-        let pagesAmount = Math.ceil(classesAmount/pageSize);
+            let result = await pool.query(
+                "INSERT INTO classes (name, school_id, year) VALUES ($1, $2, $3) RETURNING *",
+                [name, school_id, year]
+            );
+            res.status(201).json(result.rows[0]);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({message: "Error occured."});
+        }
+    }); 
 
-        let result = await pool.query("SELECT * FROM classes ORDER BY id LIMIT $1 OFFSET $2",
-            [pageSize, offset]
-        );
+    router.get("/", async (req, res) => {
+        let page = parseInt(req.query.page);
+        if(isNaN(page) || page < 1) page = 1;
+        let pageSize = 5;
+        let offset = (page - 1) * pageSize;
 
-        res.json({
-            classes: result.rows,
-            currentPage: page,
-            classesAmount,
-            pagesAmount
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({message: "Internal error occured."});
-    }
-});
+        try {
+            let countClasses = await pool.query("SELECT COUNT(*) FROM classes");
+            let classesAmount = parseInt(countClasses.rows[0].count);
+            let pagesAmount = Math.ceil(classesAmount/pageSize);
 
-router.get("/:id", async (req, res) => {
-    let classId = parseInt(req.params.id);
+            let result = await pool.query("SELECT * FROM classes ORDER BY id LIMIT $1 OFFSET $2",
+                [pageSize, offset]
+            );
 
-    if(isNaN(classId)) {
-        return res.status(400).json({message: "Invalid class id."});
-    }
+            res.json({
+                classes: result.rows,
+                currentPage: page,
+                classesAmount,
+                pagesAmount
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({message: "Internal error occured."});
+        }
+    });
 
-    try{
-        let result = await pool.query(
-            "SELECT * FROM classes WHERE id = $1",
-            [classId]
-        );
+    router.get("/:id", async (req, res) => {
+        let classId = parseInt(req.params.id);
 
-        if (result.rows.length === 0) {
-            res.status(400).json({message: "Class was not found."});
+        if(isNaN(classId)) {
+            return res.status(400).json({message: "Invalid class id."});
         }
 
-        res.json(result.rows[0]);
-    } catch(error) {
-        console.error(error);
-        res.status(500).json({message: "Internal error."});
-    }
-});
+        try{
+            let result = await pool.query(
+                "SELECT * FROM classes WHERE id = $1",
+                [classId]
+            );
+
+            if (result.rows.length === 0) {
+                res.status(400).json({message: "Class was not found."});
+            }
+
+            res.json(result.rows[0]);
+        } catch(error) {
+            console.error(error);
+            res.status(500).json({message: "Internal error."});
+        }
+    });
+    return router;
+}
