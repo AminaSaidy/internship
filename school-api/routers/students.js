@@ -39,7 +39,8 @@ module.exports = (pool) => {
         try {
             let result = await pool.query(
                 "SELECT * FROM students ORDER BY id LIMIT $1 OFFSET $2", 
-                [pageSize, offset]);
+                [pageSize, offset]
+            );
 
             let countStudents = await pool.query("SELECT COUNT(*) FROM students");
             let studentsAmount = parseInt(countStudents.rows[0].count);
