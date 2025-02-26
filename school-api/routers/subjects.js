@@ -53,5 +53,26 @@ module.exports = (pool) => {
     });
 
     router.get("/:id", async (req, res) => {
+        let subjectId = req.params.id;
+
+        if (isNaN(subjectId)) {
+            return res.status(400).json("Invalid subject id");
+        }
+
+        try {
+            let result = await pool.query(
+                "SELECT * FROM subjects WHERE id = $1",
+                [subjectId]
+            );
+
+            if (result.rows.length === 0) {
+                return res.status(400).json("Subject was not found");
+            }
+
+            res.json(result.rows[0]);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({message: "Internal error occured"});
+        }
     });
 }
