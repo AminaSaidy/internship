@@ -87,7 +87,7 @@ module.exports = (pool) => {
         try {
             let result = await pool.query(
                 `SELECT c.id, c.name, c.school_id, c.year 
-                FROM classes c JOINT class_teachers ct ON c.id = ct.class_id 
+                FROM classes c JOIN class_teachers ct ON c.id = ct.class_id 
                 WHERE ct.teacher_id = $1`,
                 [teacherId]
             );
@@ -99,7 +99,7 @@ module.exports = (pool) => {
         }
     });
 
-    router.post("/", async (req, res) => {
+    router.post("/classes", async (req, res) => {
         const {class_id, teacher_id} = req.body;
 
         try {
