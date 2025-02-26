@@ -50,7 +50,27 @@ module.exports = (pool) => {
     });
 
     router.get("/:id", async (req, res) => {
-        
+        let teacherId = parseInt(req.params.id);
+         
+        if (isNaN(teacherId)) {
+            return res.status(400).json("Invalid teacher id");
+        }
+
+        try {
+            let result = await pool.query(
+                "SELECT * FROM teachers WHERE id = $1",
+                [teacherId]
+            );
+
+            if (result.rows.length === 0) {
+                return res.status(400).json("Teacher was not found");
+            }
+
+            res.json(result.rows[0]);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({message: "Internal error occured"});
+        }
     });
     return router;
 }
