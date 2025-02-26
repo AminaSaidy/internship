@@ -106,5 +106,27 @@ module.exports = (pool) => {
             res.status(500).json({message: "Internal error occured"});
         }
     });
+
+    router.get("/:id/subjects", async (req, res) => {
+        let classId = parseInt(req.params.id);
+
+        if (isNaN(classId)) {
+            return res.status(400).json("Invalid class id");
+        }
+
+        try {
+            let result = await pool.query(
+                `SELECT s.id, s.name, s.description
+                FROM subjects s JOIN class_subjects cs ON s.id = cs.subject_id 
+                WHERE cs.class_id = $1`,
+                [classId]
+            );
+
+            res.json(result.rows);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({message: "Internal error occured"});
+        }
+    });
     return router;
 }
