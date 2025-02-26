@@ -76,5 +76,50 @@ module.exports = (pool) => {
             res.status(500).json({message: "Internal error occured"});
         }
     });
+
+    router.get("/:id/classes", async (req, res) => {
+        let teacherId = parseInt(req.params.id);
+
+        if (isNaN(teacherId)) {
+            return res.status(400).json("Invalid teacher id");
+        }
+
+        try {
+            let result = await pool.query(
+                `SELECT c.id, c.name, c.school_id, c.year 
+                FROM classes c JOIN class_teachers ct ON c.id = ct.class_id 
+                WHERE ct.teacher_id = $1`,
+                [teacherId]
+            );
+
+            res.json(result.rows);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({message: "Internal error occured"});
+        }
+    });
+
+    router.post("/classes", async (req, res) => {
+        const {class_id, teacher_id} = req.body;
+
+        try {
+            let classCheck = await pool.query("SELECT id FROM classes WHERE id = $1", [class_id]);
+            let teacherCheck = await pool.query("SELECT id FROM teachers WHERE id = $1", [teacher_id]);
+
+            if(classCheck.rows.length === 0 || teacherCheck.rows.length === 0 ) {
+                return res.status(400).json({message: "Class or teacher does not exist."}); 
+            }
+
+            let result = await pool.query(
+                `INSERT INTO class_teachers (class_id, teacher_id) VALUES ($1, $2) RETURNING *`,
+                [class_id, teacher_id]
+            );
+
+            res.json(result.rows[0]);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({message: "Internal error occured"});
+        }
+    });
     return router;
 }
