@@ -1,4 +1,4 @@
-const express = require ('express');
+const express = require('express');
 const router = express.Router();
 
 module.exports = (pool) => {
@@ -42,7 +42,7 @@ module.exports = (pool) => {
                 [pageSize, offset]);
 
             let countStudents = await pool.query("SELECT COUNT(*) FROM students");
-            let studentsAmount = parseInt(countStudents.rows[0].length);
+            let studentsAmount = parseInt(countStudents.rows[0].count);
             let pagesAmount = Math.ceil(studentsAmount/pageSize);
 
             res.json({
@@ -60,7 +60,7 @@ module.exports = (pool) => {
     router.get("/:id", async(req, res) => {
         let studentId = parseInt(req.params.id);
 
-        if (isNaN(studentsId)) {
+        if (isNaN(studentId)) {
             return res.status(400).json({message: "Invalid student id."});
         }
 
@@ -71,7 +71,7 @@ module.exports = (pool) => {
             );
 
             if(result.rows.length === 0) {
-                return res.status(400).json({message: "Students was not found."});
+                return res.status(400).json({message: "Student was not found."});
             }
 
             res.json(result.rows[0]);
