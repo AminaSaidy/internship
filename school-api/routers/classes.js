@@ -41,6 +41,10 @@ module.exports = (pool) => {
             let classesAmount = parseInt(countClasses.rows[0].count);
             let pagesAmount = Math.ceil(classesAmount/pageSize);
 
+            if(page > pagesAmount) {
+                return res.status(404).json({message: "Page not found"});
+            }
+            
             let result = await pool.query("SELECT * FROM classes ORDER BY id LIMIT $1 OFFSET $2",
                 [pageSize, offset]
             );

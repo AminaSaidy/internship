@@ -37,6 +37,10 @@ module.exports = (pool) => {
             let teachersAmount = parseInt(countTeachers.rows.length);
             let pagesAmount = Math.ceil(teachersAmount/pageSize);
 
+            if(page > pagesAmount) {
+                return res.status(404).json({message: "Page not found"});
+            }
+            
             res.json({
                 teachers: result.rows,
                 currentPage: page,
