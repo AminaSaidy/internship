@@ -19,7 +19,7 @@ const pool = new Pool({
 const classesRouter = require("./routers/classes")(pool);
 const studentsRouter = require("./routers/students")(pool);
 const teachersRouter = require("./routers/teachers")(pool);
-const subjectRouter = reuire("./routers/subjects")(pool);
+const subjectsRouter = require("./routers/subjects")(pool);
 app.use("/api/classes", classesRouter);
 app.use("/api/students", studentsRouter);
 app.use("/api/teachers", teachersRouter);

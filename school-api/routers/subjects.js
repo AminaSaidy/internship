@@ -34,7 +34,7 @@ module.exports = (pool) => {
             );
 
             let countSubjects = await pool.query ("SELECT COUNT (*) FROM subjects");
-            let subjectsAmount = parseInt(countSubjects.rows.count);
+            let subjectsAmount = parseInt(countSubjects.rows[0].count);
             let pagesAmount = Math.ceil (subjectsAmount/pageSize);
 
             if(page > pagesAmount) {
@@ -75,4 +75,5 @@ module.exports = (pool) => {
             res.status(500).json({message: "Internal error occured"});
         }
     });
+    return router;
 }
