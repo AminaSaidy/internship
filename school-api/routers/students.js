@@ -31,11 +31,34 @@ module.exports = (pool) => {
     });
 
     router.get("/", async(req, res) => {
+        let page = parseInt(req.query.page);
+        if (isNaN(page) || page < 1) page = 1;
+        let pageSize = 5;
+        let offset = (page - 1) * pageSize;
 
+        try {
+            let result = await pool.query(
+                "SELECT * FROM students ORDER BY id LIMIT $1 OFFSET $2", 
+                [pageSize, offset]);
+
+            let countStudents = await pool.query("SELECT COUNT(*) FROM students");
+            let studentsAmount = parseInt(countStudents.rows[0].length);
+            let pagesAmount = Math.ceil(studentsAmount/pageSize);
+
+            res.json({
+                students: result.rows,
+                currentPage: page,
+                studentsAmount,
+                pagesAmount
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({message: "Internal error occured."});
+        }
     });
 
     router.get("/:id", async(req, res) => {
-
+        
     });
     return router;
 }
