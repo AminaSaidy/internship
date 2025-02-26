@@ -34,13 +34,13 @@ module.exports = (pool) => {
             );
 
             let countTeachers = await pool.query("SELECT COUNT(*) FROM teachers");
-            let teachersAmount = parseInt(countTeachers.rows.length);
+            let teachersAmount = parseInt(countTeachers.rows[0].count);
             let pagesAmount = Math.ceil(teachersAmount/pageSize);
 
             if(page > pagesAmount) {
                 return res.status(404).json({message: "Page not found"});
             }
-            
+
             res.json({
                 teachers: result.rows,
                 currentPage: page,
