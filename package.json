@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node dist/main.js",
-   "dev": "ts-node src/main.ts",
-   "build": "tsc",
-   "start:dev": "nest start --watch"
+    "dev": "ts-node src/main.ts",
+    "build": "tsc",
+    "start:dev": "nest start --watch"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
   "dependencies": {
     "@nestjs/cli": "^11.0.5",
     "@nestjs/common": "^11.0.11",
+    "@nestjs/config": "^4.0.1",
     "@nestjs/core": "^11.0.11",
     "@nestjs/platform-express": "^11.0.11",
     "dotenv": "^16.4.7",
@@ -32,6 +33,7 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.9",
+    "@types/pg": "^8.11.11",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
