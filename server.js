@@ -1,8 +1,8 @@
-require('dotenv').config({ path: __dirname + '/.env' });
+// require('dotenv').config({ path: __dirname + '/.env' });
 
 // const {Pool} = require('pg');
-const express = require('express');
-const app = express();
+// const express = require('express');
+// const app = express();
 // const port = 3000;
 const pageSize = 5;
 
