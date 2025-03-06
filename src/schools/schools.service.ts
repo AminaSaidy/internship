@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Pool } from 'pg';
+import { CreateSchoolDto } from './dto/create-school.dto';
 
 @Injectable()
 export class SchoolsService {
@@ -51,4 +52,18 @@ export class SchoolsService {
     const result = await this.pool.query('SELECT * FROM schools WHERE id = $1', [id]);
     return result.rows[0] || null;
   }
+
+  async create(createSchoolDto: CreateSchoolDto) {
+    const { number, name, classesAmount, teachersAmount, status } = createSchoolDto;
+    try {
+        const result = await this.pool.query(
+            'INSERT INTO schools (number, name, classes_amount, teachers_amount, status) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [number, name, classesAmount, teachersAmount, status]
+        );
+        return result.rows[0];
+    } catch (error) {
+        console.error(error);
+        throw new Error('Error occurred while inserting school.');
+    }
+}
 }

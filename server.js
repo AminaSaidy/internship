@@ -25,47 +25,47 @@ app.use("/api/students", studentsRouter);
 app.use("/api/teachers", teachersRouter);
 app.use("/api/subjects", subjectsRouter);
 
-class School {
-    constructor(number, name, classesAmount, teachersAmount, status){
-        this.number = number;
-        this.name = name;
-        this.classesAmount = classesAmount;
-        this.teachersAmount = teachersAmount;
-        this.status = status;
-    }
-}
+// class School {
+//     constructor(number, name, classesAmount, teachersAmount, status){
+//         this.number = number;
+//         this.name = name;
+//         this.classesAmount = classesAmount;
+//         this.teachersAmount = teachersAmount;
+//         this.status = status;
+//     }
+// }
 
-app.get('/api/school', async (req, res) => {
-    //получаем номер страницы. по умолчанию 1, а если превышает колво страниц - 404 ошибка
-    let page = parseInt(req.query.page) || 1;
-    if(page < 1) page = 1;
+// app.get('/api/school', async (req, res) => {
+//     //получаем номер страницы. по умолчанию 1, а если превышает колво страниц - 404 ошибка
+//     let page = parseInt(req.query.page) || 1;
+//     if(page < 1) page = 1;
     
-    try {
-        let countSchools = await pool.query("SELECT COUNT(*) FROM schools");
-        let schoolsAmount = parseInt(countSchools.rows[0].count);
-        let pagesAmount = Math.ceil(schoolsAmount/pageSize);
+//     try {
+//         let countSchools = await pool.query("SELECT COUNT(*) FROM schools");
+//         let schoolsAmount = parseInt(countSchools.rows[0].count);
+//         let pagesAmount = Math.ceil(schoolsAmount/pageSize);
 
-        if(page > pagesAmount) {
-            return res.status(404).json({message: "Page not found"});
-        }
+//         if(page > pagesAmount) {
+//             return res.status(404).json({message: "Page not found"});
+//         }
 
-        //индексы школ, которые будут выведены на конкретной странице
-        let startIndex = (page - 1) * pageSize;
-        let result = await pool.query("SELECT * FROM schools ORDER BY id LIMIT $1 OFFSET $2",
-            [pageSize, startIndex]
-        );
+//         //индексы школ, которые будут выведены на конкретной странице
+//         let startIndex = (page - 1) * pageSize;
+//         let result = await pool.query("SELECT * FROM schools ORDER BY id LIMIT $1 OFFSET $2",
+//             [pageSize, startIndex]
+//         );
 
-        res.json({
-            schools: result.rows,
-            currentPage: page,
-            schoolsAmount,
-            pagesAmount
-        });
-    } catch (error) {
-    console.error(error);
-    res.status(500).json({message: "Internal error"});
-}
-});
+//         res.json({
+//             schools: result.rows,
+//             currentPage: page,
+//             schoolsAmount,
+//             pagesAmount
+//         });
+//     } catch (error) {
+//     console.error(error);
+//     res.status(500).json({message: "Internal error"});
+// }
+// });
 
 // app.get("/school/:id", async (req, res) => {
 //     let schoolId = parseInt(req.params.id);
@@ -110,4 +110,4 @@ app.post("/school", async (req, res) => {
     }
 });
 
-app.listen(port, () => console.log(`Listening on port ${port}`));
+// app.listen(port, () => console.log(`Listening on port ${port}`));

@@ -1,6 +1,10 @@
-import { Controller, Get, Param, ParseIntPipe, NotFoundException, Query, Res } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, 
+    NotFoundException, Query, Res,
+    Post, Body, BadRequestException } from '@nestjs/common';
+
 import { SchoolsService } from './schools.service';
 import { Response } from 'express';
+import { CreateSchoolDto } from './dto/create-school.dto';
 
 @Controller('api/school')
 export class SchoolsController {
@@ -28,4 +32,15 @@ export class SchoolsController {
     }
     return school;
   }
+
+  @Post()
+    async createSchool(@Body() createSchoolDto: CreateSchoolDto) {
+        const { number, name, classesAmount, teachersAmount, status } = createSchoolDto;
+
+        if (!number || !name || !classesAmount || !teachersAmount || status === undefined) {
+            throw new BadRequestException('Some required fields are empty.');
+        }
+
+        return this.schoolsService.create(createSchoolDto);
+    }
 }
