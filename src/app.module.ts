@@ -1,4 +1,8 @@
 import { Module } from '@nestjs/common';
 
-@Module({})
+import { SchoolsModule } from './schools/schools.module';
+
+@Module({
+  imports: [SchoolsModule]
+})
 export class AppModule {}
