@@ -4,9 +4,9 @@
 // const express = require('express');
 // const app = express();
 // const port = 3000;
-const pageSize = 5;
+// const pageSize = 5;
 
-app.use(express.json());
+// app.use(express.json());
 
 // const pool = new Pool({
 //     user: process.env.DB_USER,
@@ -91,23 +91,23 @@ app.use("/api/subjects", subjectsRouter);
 //     }
 // });
 
-app.post("/school", async (req, res) => {
-    const {number, name, classesAmount, teachersAmount, status} = req.body;
+// app.post("/school", async (req, res) => {
+//     const {number, name, classesAmount, teachersAmount, status} = req.body;
 
-    if(!number || !name || !classesAmount || !teachersAmount || status === undefined) {
-        return res.status(400).json({message:"Some required fields are empty."});
-    }
+//     if(!number || !name || !classesAmount || !teachersAmount || status === undefined) {
+//         return res.status(400).json({message:"Some required fields are empty."});
+//     }
 
-    try {
-        let result = await pool.query(
-            "INSERT INTO schools (number, name, classes_amount, teachers_amount, status) VALUES ($1, $2, $3, $4, $5) RETURNING *", 
-            [number, name, classesAmount, teachersAmount, status]
-        );
-        res.status(201).json(result.rows[0]);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({message: "Error occured."});
-    }
-});
+//     try {
+//         let result = await pool.query(
+//             "INSERT INTO schools (number, name, classes_amount, teachers_amount, status) VALUES ($1, $2, $3, $4, $5) RETURNING *", 
+//             [number, name, classesAmount, teachersAmount, status]
+//         );
+//         res.status(201).json(result.rows[0]);
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({message: "Error occured."});
+//     }
+// });
 
 // app.listen(port, () => console.log(`Listening on port ${port}`));
