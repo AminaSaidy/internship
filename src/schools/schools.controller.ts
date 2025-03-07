@@ -12,7 +12,7 @@ export class SchoolsController {
 
     @Get()
     async getSchools(@Query('page') page: string, @Res() res: Response) {
-        const pageNumber = parseInt(page) || 1;
+    const pageNumber = parseInt(page) || 1;
     const pageSize = 5; 
 
     const result = await this.schoolsService.getSchools(pageNumber, pageSize);
