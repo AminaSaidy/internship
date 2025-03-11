@@ -2,19 +2,15 @@ import { Injectable, Inject, BadRequestException, InternalServerErrorException, 
 import { Pool } from 'pg';
 import { ConfigService } from '@nestjs/config';
 import { CreateSubjectDto } from './dto/create-subject.dto'
+import { DatabaseService } from 'src/db/database.service';
 
 @Injectable()
 export class SubjectsService {
     private pool: Pool;
     
-    constructor(private configService: ConfigService) {
-        this.pool = new Pool({
-            user: this.configService.get<string>('DB_USER'),
-            host: this.configService.get<string>('DB_HOST'),
-            database: this.configService.get<string>('DB_NAME'),
-            password: this.configService.get<string>('DB_PASSWORD'),
-            port: this.configService.get<number>('DB_PORT'),
-        });
+    constructor(private configService: ConfigService, 
+        private readonly databaseService: DatabaseService) {
+        this.pool = this.databaseService.getPool();
     }
 
      async create(createSubjectDto: CreateSubjectDto) {
