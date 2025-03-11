@@ -3,7 +3,7 @@ import { Pool } from 'pg';
 import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { ConfigService } from '@nestjs/config';
 import { AssignTeacherToClassDto } from './dto/assign-teacher-to-class.dto';
-import { DatabaseService } from 'src/db/database.service';
+import { DatabaseService } from '../db/database.service';
 
 @Injectable()
 export class TeachersService {

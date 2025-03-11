@@ -2,7 +2,7 @@ import { Injectable, BadRequestException, NotFoundException} from '@nestjs/commo
 import { Pool } from 'pg';
 import { ConfigService } from '@nestjs/config';
 import { CreateStudentDto } from './dto/create-student.dto';
-import { DatabaseService } from 'src/db/database.service'; 
+import { DatabaseService } from '../db/database.service'; 
 
 @Injectable()
 export class StudentsService {

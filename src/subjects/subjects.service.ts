@@ -2,7 +2,7 @@ import { Injectable, Inject, BadRequestException, InternalServerErrorException, 
 import { Pool } from 'pg';
 import { ConfigService } from '@nestjs/config';
 import { CreateSubjectDto } from './dto/create-subject.dto'
-import { DatabaseService } from 'src/db/database.service';
+import { DatabaseService } from '../db/database.service';
 
 @Injectable()
 export class SubjectsService {
