@@ -6,6 +6,7 @@ import { ClassesModule } from './classes/classes.module';
 import { TeachersModule } from './teachers/teachers.module';
 import { SubjectsModule } from './subjects/subjects.module';
 import { DatabaseModule } from './db/database.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { DatabaseModule } from './db/database.module';
     ClassesModule,
     TeachersModule,
     SubjectsModule,
-    DatabaseModule
+    DatabaseModule,
+    RedisModule
   ],
 })
 export class AppModule {}
