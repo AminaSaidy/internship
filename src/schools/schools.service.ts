@@ -3,20 +3,32 @@ import { ConfigService } from '@nestjs/config';
 import { Pool } from 'pg';
 import { CreateSchoolDto } from './dto/create-school.dto';
 import { DatabaseService } from '../db/database.service';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class SchoolsService {
     private pool: Pool;
 
-  constructor(private configService: ConfigService, 
-          private readonly databaseService: DatabaseService) {
+  constructor(
+    private configService: ConfigService, 
+    private readonly databaseService: DatabaseService,
+    private readonly redisService: RedisService
+    ) {
           this.pool = this.databaseService.getPool();
       }
 
-  async getSchools(page: number, pageSize: number) {
+    async getSchools(page: number, pageSize: number) {
     if(page < 1) page = 1;
     
     try {
+        const cacheKey = `school_list_page_${page}_size_${pageSize}`;
+        const cachedData = await this.redisService.get(cacheKey);
+
+        if (cachedData) {
+            console.log("Data from Redis");
+            return JSON.parse(cachedData);
+        }
+
         let countSchools = await this.pool.query("SELECT COUNT(*) FROM schools");
         let schoolsAmount = parseInt(countSchools.rows[0].count);
         let pagesAmount = Math.ceil(schoolsAmount/pageSize);
@@ -32,12 +44,17 @@ export class SchoolsService {
             [pageSize, startIndex]
         );
 
-        return {
+        const response = {
             schools: result.rows,
             currentPage: page,
             schoolsAmount,
             pagesAmount
-        };
+        }
+
+        await this.redisService.set(cacheKey, response, 86400); 
+        console.log("Data was loaded to Redis");
+
+        return response;
     } catch (error) {
     console.error(error);
     return { message: "Internal error", status: 500 };
