@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Pool } from 'pg';
 import { CreateSchoolDto } from './dto/create-school.dto';
 import { DatabaseService } from '../db/database.service';
-import { RedisService } from 'src/redis/redis.service';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class SchoolsService {
