@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import Redis from 'ioredis';
 
 @Injectable() 
-export class RediseService {
+export class RedisService {
     private redis: Redis;
 
     constructor() {
