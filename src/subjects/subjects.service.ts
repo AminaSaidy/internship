@@ -81,13 +81,25 @@ export class SubjectsService {
         
     async getSubjectById(id: number) {
             try {
+              const cacheKey = `subject_with_id_${id}`;
+              const cachedData = await this.redisService.get(cacheKey);
+
+              if (cachedData) {
+                console.log("Data from redis");
+                return JSON.parse(cachedData);
+              }
+
               const result = await this.pool.query('SELECT * FROM subjects WHERE id = $1', [id]);
         
               if (result.rows.length === 0) {
                 throw new NotFoundException('Subject was not found');
               }
-        
-              return result.rows[0];
+
+              const response = result.rows[0];
+              await this.redisService.set(cacheKey, response, 84600);
+              console.log("Data was loaded to Redis");
+              
+              return response;
             } catch (error) {
               console.error(error);
               throw new InternalServerErrorException('Internal error occurred');

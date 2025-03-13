@@ -4,15 +4,19 @@ import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { ConfigService } from '@nestjs/config';
 import { AssignTeacherToClassDto } from './dto/assign-teacher-to-class.dto';
 import { DatabaseService } from '../db/database.service';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class TeachersService {
     private pool: Pool;
     
-    constructor(private configService: ConfigService, 
-            private readonly databaseService: DatabaseService) {
+    constructor(
+      private configService: ConfigService, 
+      private readonly databaseService: DatabaseService,
+      private readonly redisService: RedisService
+    ) {
             this.pool = this.databaseService.getPool();
-        }
+      }
 
     async create(createTeacherDto: CreateTeacherDto) {
         const { name, birth_date, phone, email, hired_at } = createTeacherDto;
@@ -32,6 +36,14 @@ export class TeachersService {
         const pageSize = 5;
         const offset = (page - 1) * pageSize;
         try {
+          const cacheKey = `teachers_list_page_${page}`;
+          const cachedData = await this.redisService.get(cacheKey);
+
+          if (cachedData) {
+            console.log("Data from Redis");
+            return JSON.parse(cachedData);
+          }
+
           const result = await this.pool.query(
             'SELECT * FROM teachers ORDER BY id LIMIT $1 OFFSET $2',
             [pageSize, offset]
@@ -39,7 +51,12 @@ export class TeachersService {
           const countResult = await this.pool.query('SELECT COUNT(*) FROM teachers');
           const teachersAmount = parseInt(countResult.rows[0].count);
           const pagesAmount = Math.ceil(teachersAmount / pageSize);
-          return { teachers: result.rows, currentPage: page, teachersAmount, pagesAmount };
+          const response = { teachers: result.rows, currentPage: page, teachersAmount, pagesAmount };
+
+          await this.redisService.set(cacheKey, response, 84600);
+          console.log("Data was loaded to Redis");
+          
+          return response;
         } catch (error) {
           throw new Error('Error occurred while retrieving teachers.');
         }
