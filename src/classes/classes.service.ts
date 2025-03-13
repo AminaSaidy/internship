@@ -111,6 +111,14 @@ export class ClassesService {
   }
 
   async getTeachersByClass(classId: number) {
+    const cacheKey = `teachers_teaching_class_with_id_${classId}`;
+    const cachedData = await this.redisService.get(cacheKey);
+
+    if (cachedData) {
+      console.log("Data from Redis");
+      return JSON.parse(cachedData);
+    }
+
     const result = await this.pool.query(
       `SELECT t.id, t.name, t.birth_date, t.phone, t.email, t.hired_at
       FROM teachers t JOIN class_teachers ct ON t.id = ct.teacher_id
@@ -118,10 +126,21 @@ export class ClassesService {
       [classId]
     );
 
-    return result.rows;
+    const response = result.rows;
+    await this.redisService.set(cacheKey, response, 23200);
+    console.log("Data is loaded to Redis");
+    return response;
   }
 
   async getSubjectsByClass(classId: number) {
+    const cacheKey = `subjects_learned_at_class_with_id_${classId}`;
+    const cachedData = await this.redisService.get(cacheKey);
+
+    if (cachedData) {
+      console.log("Data from Redis");
+      return JSON.parse(cachedData);
+    }
+
     const result = await this.pool.query(
       `SELECT s.id, s.name, s.description
       FROM subjects s JOIN class_subjects cs ON s.id = cs.subject_id
@@ -129,6 +148,9 @@ export class ClassesService {
       [classId]
     );
 
-    return result.rows;
+    const response = result.rows;
+    await this.redisService.set(cacheKey, response, 23200);
+    console.log("Data is loaded to Redis");
+    return response;
   }
 }

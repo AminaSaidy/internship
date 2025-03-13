@@ -99,7 +99,16 @@ export class TeachersService {
   }
 
   async findTeacherClasses(id: number) {
+    const cacheKey = `classes_of_teacher_with_id_${id}`;
+
     try {
+      const cachedData = await this.redisService.get(cacheKey);
+
+      if (cachedData) {
+        console.log("Data from Redis");
+        return JSON.parse(cachedData);
+      }
+
       const result = await this.pool.query(
         `SELECT c.id, c.name, c.school_id, c.year 
              FROM classes c 
@@ -107,7 +116,11 @@ export class TeachersService {
              WHERE ct.teacher_id = $1`,
         [id]
       );
-      return result.rows;
+      const response = result.rows;
+
+      await this.redisService.set(cacheKey, response, 84600);
+      console.log("Data was loaded to Redis");
+      return response;
     } catch (error) {
       throw new Error("Error occurred while retrieving teacher classes.");
     }

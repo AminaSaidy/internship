@@ -117,7 +117,16 @@ export class SubjectsService {
   }
 
   async findClassesBySubject(subjectId: number) {
+    const cacheKey = `classes_learning_subject_with_id_${subjectId}`;
+
     try {
+      const cachedData = await this.redisService.get(cacheKey);
+
+      if (cachedData) {
+        console.log("Data from Redis");
+        return JSON.parse(cachedData);
+      }
+
       const result = await this.pool.query(
         `SELECT c.id, c.name, c.school_id, c.year 
                  FROM classes c 
@@ -126,7 +135,10 @@ export class SubjectsService {
         [subjectId]
       );
 
-      return result.rows;
+      const response = result.rows;
+      await this.redisService.set(cacheKey, response, 84600);
+      console.log("Data was loaded to Redis");
+      return response;
     } catch (error) {
       console.error(error);
       throw new InternalServerErrorException("Internal error occurred");
