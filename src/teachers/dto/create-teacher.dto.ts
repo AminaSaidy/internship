@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsDateString, IsPhoneNumber, IsEmail } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsDateString,
+  IsPhoneNumber,
+  IsEmail,
+} from "class-validator";
 
 export class CreateTeacherDto {
   @IsString()
