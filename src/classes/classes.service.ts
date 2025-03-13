@@ -3,13 +3,17 @@ import { Pool } from 'pg';
 import { CreateClassDto } from './dto/create-class.dto';
 import { ConfigService } from '@nestjs/config';
 import { DatabaseService } from '../db/database.service'; 
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class ClassesService {
     private pool: Pool;
 
-    constructor(private configService: ConfigService, 
-      private readonly databaseService: DatabaseService) {
+    constructor(
+      private configService: ConfigService, 
+      private readonly databaseService: DatabaseService,
+      private readonly redisService: RedisService
+    ) {
       this.pool = this.databaseService.getPool();
   }
 
@@ -39,8 +43,16 @@ export class ClassesService {
 
   async getClasses(page: number, pageSize: number) {
     if (page < 1) page = 1;
+    const cacheKey = `classes_list_page_${page}`;
 
     try {
+      const cachedData = await this.redisService.get(cacheKey);
+
+      if (cachedData) {
+        console.log("Data from Redis");
+        return JSON.parse(cachedData);
+      }
+
       const countResult = await this.pool.query('SELECT COUNT(*) FROM classes');
       const classesAmount = parseInt(countResult.rows[0].count);
       const pagesAmount = Math.ceil(classesAmount / pageSize);
@@ -55,12 +67,16 @@ export class ClassesService {
         [pageSize, offset],
       );
 
-      return {
+      const response = {
         classes: result.rows,
         currentPage: page,
         classesAmount,
         pagesAmount,
       };
+
+      await this.redisService.set(cacheKey, response, 7200);
+      console.log("Data was loaded to Redis");
+      return response;
     } catch (error) {
       console.error(error);
       return { message: 'Internal error', status: 500 };
@@ -68,6 +84,14 @@ export class ClassesService {
   }
 
   async getClassById(classId: number) {
+    const cacheKey = `class_wait_id_${classId}`;
+    const cachedData = await this.redisService.get(cacheKey);
+
+    if (cachedData) {
+      console.log("Data from Redis");
+      return JSON.parse(cachedData);
+    }
+
     const result = await this.pool.query('SELECT * FROM classes WHERE id = $1', [
       classId,
     ]);
@@ -76,7 +100,10 @@ export class ClassesService {
       throw new NotFoundException('Class was not found');
     }
 
-    return result.rows[0];
+    const response = result.rows[0];
+    await this.redisService.set(cacheKey, response, 23200);
+    console.log("Data is loaded to Redis");
+    return response;
   }
 
   async getTeachersByClass(classId: number) {
