@@ -21,7 +21,7 @@ export class SchoolsService {
     if(page < 1) page = 1;
     
     try {
-        const cacheKey = `school_list_page_${page}_size_${pageSize}`;
+        const cacheKey = `school_list_page_${page}_size_${pageSize}`;  
         const cachedData = await this.redisService.get(cacheKey);
 
         if (cachedData) {
@@ -62,8 +62,23 @@ export class SchoolsService {
 }
 
   async findById(id: number) {
+    const cacheKey = `school_with_id_${id}`;
+    const cachedData = await this.redisService.get(cacheKey);
+
+    if (cachedData) {
+        console.log("Data from Redis");
+        return JSON.parse(cachedData);
+    }
+
     const result = await this.pool.query('SELECT * FROM schools WHERE id = $1', [id]);
-    return result.rows[0] || null;
+    const response = result.rows[0] || null; 
+
+    if (response) {
+        await this.redisService.set(cacheKey, JSON.stringify(response), 86400);
+        console.log("Data was loaded to Redis");
+    }
+    
+    return response;
   }
 
   async create(createSchoolDto: CreateSchoolDto) {

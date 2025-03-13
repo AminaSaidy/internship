@@ -3,13 +3,17 @@ import { Pool } from 'pg';
 import { ConfigService } from '@nestjs/config';
 import { CreateSubjectDto } from './dto/create-subject.dto'
 import { DatabaseService } from '../db/database.service';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class SubjectsService {
     private pool: Pool;
     
-    constructor(private configService: ConfigService, 
-        private readonly databaseService: DatabaseService) {
+    constructor(
+        private configService: ConfigService, 
+        private readonly databaseService: DatabaseService,
+        private readonly redisService: RedisService
+      ) {
         this.pool = this.databaseService.getPool();
     }
 
@@ -38,6 +42,14 @@ export class SubjectsService {
             const offset = (page - 1) * pageSize;
         
             try {
+              const cacheKey = `subjects_list_page_${page}`;
+              const cachedData = await this.redisService.get(cacheKey);
+
+              if (cachedData) {
+                console.log("Data from Redis");
+                return JSON.parse(cachedData);
+              }
+
               const result = await this.pool.query(
                 'SELECT * FROM subjects ORDER BY id LIMIT $1 OFFSET $2',
                 [pageSize, offset]
@@ -50,13 +62,17 @@ export class SubjectsService {
               if (page > pagesAmount) {
                 throw new NotFoundException('Page not found');
               }
-        
-              return {
+
+              const response = {
                 subjects: result.rows,
                 currentPage: page,
                 subjectsAmount,
                 pagesAmount,
               };
+
+              await this.redisService.set(cacheKey, response, 84600);
+              console.log("Data was loaded to Redis");
+              return response;
             } catch (error) {
               console.error(error);
               throw new InternalServerErrorException('Internal error occurred');
