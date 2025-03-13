@@ -3,13 +3,17 @@ import { Pool } from 'pg';
 import { ConfigService } from '@nestjs/config';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { DatabaseService } from '../db/database.service'; 
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class StudentsService {
     private pool: Pool;
 
-  constructor(private configService: ConfigService, 
-          private readonly databaseService: DatabaseService) {
+  constructor(
+    private configService: ConfigService, 
+    private readonly databaseService: DatabaseService,
+    private readonly redisService: RedisService
+  )   {
           this.pool = this.databaseService.getPool();
       }
 
@@ -36,8 +40,16 @@ export class StudentsService {
 
   async getStudents(page: number, pageSize: number) {
     if (page < 1) page = 1;
+    const cacheKey = `students_list_page_${page}`;
 
     try {
+      const cachedData = await this.redisService.get(cacheKey);
+
+      if (cachedData) {
+        console.log("Data from Redis");
+        return JSON.parse(cachedData);
+      }
+
       const countResult = await this.pool.query("SELECT COUNT(*) FROM students");
       const studentsAmount = parseInt(countResult.rows[0].count);
       const pagesAmount = Math.ceil(studentsAmount / pageSize);
@@ -52,12 +64,16 @@ export class StudentsService {
         [pageSize, startIndex]
       );
 
-      return {
+      const response = {
         students: result.rows,
         currentPage: page,
         studentsAmount,
         pagesAmount
       };
+
+      await this.redisService.set(cacheKey, response, 86400);
+      console.log("Data was loaded to Redis");
+      return response;
     } catch (error) {
       console.error(error);
       return { message: "Internal error", status: 500 };
@@ -65,6 +81,14 @@ export class StudentsService {
   }
 
   async findById (id: number) {
+    const cacheKey = `student_with_id_${id}`;
+    const cachedData = await this.redisService.get(cacheKey);
+
+    if (cachedData) {
+      console.log("Data from Redis");
+      return JSON.parse(cachedData);
+    }
+
     const result = await this.pool.query(
       'SELECT * FROM students WHERE id = $1',
       [id],
@@ -74,6 +98,9 @@ export class StudentsService {
       throw new NotFoundException('Student was not found.');
     }
 
-    return result.rows[0];
+    const response = result.rows[0];
+    await this.redisService.set(cacheKey, response, 86400);
+    console.log("Data was loaded to Redis");
+    return response;
   }
 }
