@@ -32,7 +32,13 @@ export class TeachersService {
   }
 
   async getTeachers(page = 1, pageSize = 5) {
-   return Paginator.paginate(this.pool, this.redisService, "teachers", page, pageSize);
+    return Paginator.paginate(
+      this.pool,
+      this.redisService,
+      "teachers",
+      page,
+      pageSize
+    );
   }
 
   async getTeacherById(id: number) {
@@ -51,7 +57,7 @@ export class TeachersService {
       );
 
       if (result.rows.length === 0) {
-        throw new Error("Teacher not found.");
+        ErrorHandler.throwError("Teacher not found.");
       }
 
       const response = result.rows[0];
@@ -88,7 +94,9 @@ export class TeachersService {
       console.log("Data was loaded to Redis");
       return response;
     } catch (error) {
-      ErrorHandler.throwError("Error occurred while retrieving teacher classes.");
+      ErrorHandler.throwError(
+        "Error occurred while retrieving teacher classes."
+      );
     }
   }
 
@@ -104,7 +112,7 @@ export class TeachersService {
         [teacher_id]
       );
       if (classCheck.rows.length === 0 || teacherCheck.rows.length === 0) {
-        throw new Error("Class or teacher does not exist.");
+        ErrorHandler.throwError("Class or teacher does not exist.");
       }
       const result = await this.pool.query(
         "INSERT INTO class_teachers (class_id, teacher_id) VALUES ($1, $2) RETURNING *",
@@ -112,7 +120,9 @@ export class TeachersService {
       );
       return result.rows[0];
     } catch (error) {
-      ErrorHandler.throwError("Error occurred while assigning teacher to class.");
+      ErrorHandler.throwError(
+        "Error occurred while assigning teacher to class."
+      );
     }
   }
 }

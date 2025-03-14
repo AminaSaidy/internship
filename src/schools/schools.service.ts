@@ -18,7 +18,13 @@ export class SchoolsService {
   }
 
   async getSchools(page: number, pageSize: number) {
-    return Paginator.paginate(this.pool, this.redisService, "schools", page, pageSize);
+    return Paginator.paginate(
+      this.pool,
+      this.redisService,
+      "schools",
+      page,
+      pageSize
+    );
   }
 
   async findById(id: number) {

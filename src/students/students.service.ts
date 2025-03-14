@@ -44,7 +44,13 @@ export class StudentsService {
   }
 
   async getStudents(page: number, pageSize: number) {
-    return Paginator.paginate(this.pool, this.redisService, "students", page, pageSize);
+    return Paginator.paginate(
+      this.pool,
+      this.redisService,
+      "students",
+      page,
+      pageSize
+    );
   }
 
   async findById(id: number) {
