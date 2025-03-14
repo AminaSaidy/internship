@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { Pool } from "pg";
-import { ConfigService } from "@nestjs/config";
 import { CreateSubjectDto } from "./dto/create-subject.dto";
 import { DatabaseService } from "../db/database.service";
 import { RedisService } from "../redis/redis.service";
@@ -17,7 +16,6 @@ export class SubjectsService {
   private pool: Pool;
 
   constructor(
-    private configService: ConfigService,
     private readonly databaseService: DatabaseService,
     private readonly redisService: RedisService
   ) {

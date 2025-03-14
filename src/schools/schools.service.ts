@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { Pool } from "pg";
 import { CreateSchoolDto } from "./dto/create-school.dto";
 import { DatabaseService } from "../db/database.service";
@@ -12,7 +11,6 @@ export class SchoolsService {
   private pool: Pool;
 
   constructor(
-    private configService: ConfigService,
     private readonly databaseService: DatabaseService,
     private readonly redisService: RedisService
   ) {
@@ -57,7 +55,7 @@ export class SchoolsService {
       return result.rows[0];
     } catch (error) {
       console.error(error);
-      throw new Error("Error occurred while inserting school.");
+      ErrorHandler.throwError("Error occurred while inserting school.");
     }
   }
 }
