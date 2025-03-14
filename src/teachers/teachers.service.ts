@@ -6,6 +6,7 @@ import { AssignTeacherToClassDto } from "./dto/assign-teacher-to-class.dto";
 import { DatabaseService } from "../db/database.service";
 import { RedisService } from "../redis/redis.service";
 import { Paginator } from "../paginator";
+import { ErrorHandler } from "../error-handler";
 
 @Injectable()
 export class TeachersService {
@@ -28,7 +29,7 @@ export class TeachersService {
       );
       return result.rows[0];
     } catch (error) {
-      throw new Error("Error occurred while inserting teacher.");
+      ErrorHandler.throwError("Error occurred while inserting teacher.");
     }
   }
 
@@ -61,7 +62,7 @@ export class TeachersService {
 
       return response;
     } catch (error) {
-      throw new Error("Error occurred while retrieving teacher.");
+      ErrorHandler.throwError("Error occurred while retrieving teacher.");
     }
   }
 
@@ -89,7 +90,7 @@ export class TeachersService {
       console.log("Data was loaded to Redis");
       return response;
     } catch (error) {
-      throw new Error("Error occurred while retrieving teacher classes.");
+      ErrorHandler.throwError("Error occurred while retrieving teacher classes.");
     }
   }
 
@@ -113,7 +114,7 @@ export class TeachersService {
       );
       return result.rows[0];
     } catch (error) {
-      throw new Error("Error occurred while assigning teacher to class.");
+      ErrorHandler.throwError("Error occurred while assigning teacher to class.");
     }
   }
 }

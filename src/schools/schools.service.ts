@@ -5,6 +5,7 @@ import { CreateSchoolDto } from "./dto/create-school.dto";
 import { DatabaseService } from "../db/database.service";
 import { RedisService } from "../redis/redis.service";
 import { Paginator } from "../paginator";
+import { ErrorHandler } from "../error-handler";
 
 @Injectable()
 export class SchoolsService {
