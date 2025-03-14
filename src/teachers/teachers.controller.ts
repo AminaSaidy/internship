@@ -12,8 +12,9 @@ import {
 import { TeachersService } from "./teachers.service";
 import { CreateTeacherDto } from "./dto/create-teacher.dto";
 import { AssignTeacherToClassDto } from "./dto/assign-teacher-to-class.dto";
+import { Routes } from '../routes';
 
-@Controller("api/teachers")
+@Controller(Routes.TEACHERS)
 export class TeachersController {
   constructor(private readonly teachersService: TeachersService) {}
 

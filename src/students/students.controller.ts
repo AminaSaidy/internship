@@ -13,8 +13,9 @@ import {
 import { StudentsService } from "./students.service";
 import { CreateStudentDto } from "./dto/create-student.dto";
 import { Response } from "express";
+import { Routes } from '../routes';
 
-@Controller("api/students")
+@Controller(Routes.STUDENTS)
 export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
 

@@ -1,8 +1,9 @@
 import { Controller, Post, Get, Param, Query, Body } from "@nestjs/common";
 import { SubjectsService } from "./subjects.service";
 import { CreateSubjectDto } from "./dto/create-subject.dto";
+import { Routes } from '../routes';
 
-@Controller("api/subjects")
+@Controller(Routes.SUBJECTS)
 export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
 
