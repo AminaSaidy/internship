@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Pool } from "pg";
 import { CreateTeacherDto } from "./dto/create-teacher.dto";
-import { ConfigService } from "@nestjs/config";
 import { AssignTeacherToClassDto } from "./dto/assign-teacher-to-class.dto";
 import { DatabaseService } from "../db/database.service";
 import { RedisService } from "../redis/redis.service";
@@ -13,7 +12,6 @@ export class TeachersService {
   private pool: Pool;
 
   constructor(
-    private configService: ConfigService,
     private readonly databaseService: DatabaseService,
     private readonly redisService: RedisService
   ) {

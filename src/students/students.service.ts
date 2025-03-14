@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { Pool } from "pg";
-import { ConfigService } from "@nestjs/config";
 import { CreateStudentDto } from "./dto/create-student.dto";
 import { DatabaseService } from "../db/database.service";
 import { RedisService } from "../redis/redis.service";
@@ -16,7 +15,6 @@ export class StudentsService {
   private pool: Pool;
 
   constructor(
-    private configService: ConfigService,
     private readonly databaseService: DatabaseService,
     private readonly redisService: RedisService
   ) {
@@ -33,7 +31,7 @@ export class StudentsService {
     );
 
     if (classCheck.rows.length === 0) {
-      throw new BadRequestException("Class does not exist.");
+      ErrorHandler.throwError("Class does not exist.");
     }
 
     const result = await this.pool.query(
@@ -64,7 +62,7 @@ export class StudentsService {
     );
 
     if (result.rows.length === 0) {
-      throw new NotFoundException("Student was not found.");
+      ErrorHandler.throwError("Student was not found.");
     }
 
     const response = result.rows;

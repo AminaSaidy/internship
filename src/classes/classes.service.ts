@@ -1,11 +1,9 @@
 import {
   Injectable,
-  NotFoundException,
   BadRequestException,
 } from "@nestjs/common";
 import { Pool } from "pg";
 import { CreateClassDto } from "./dto/create-class.dto";
-import { ConfigService } from "@nestjs/config";
 import { DatabaseService } from "../db/database.service";
 import { RedisService } from "../redis/redis.service";
 import { Paginator } from "../paginator";
@@ -16,7 +14,6 @@ export class ClassesService {
   private pool: Pool;
 
   constructor(
-    private configService: ConfigService,
     private readonly databaseService: DatabaseService,
     private readonly redisService: RedisService
   ) {
