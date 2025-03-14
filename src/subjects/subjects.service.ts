@@ -9,6 +9,7 @@ import { ConfigService } from "@nestjs/config";
 import { CreateSubjectDto } from "./dto/create-subject.dto";
 import { DatabaseService } from "../db/database.service";
 import { RedisService } from "../redis/redis.service";
+import { Paginator } from "../paginator";
 
 @Injectable()
 export class SubjectsService {
@@ -43,47 +44,7 @@ export class SubjectsService {
   }
 
   async getSubjects(page = 1, pageSize = 5) {
-    if (page < 1) page = 1;
-    const offset = (page - 1) * pageSize;
-
-    try {
-      const cacheKey = `subjects_list_page_${page}`;
-      const cachedData = await this.redisService.get(cacheKey);
-
-      if (cachedData) {
-        console.log("Data from Redis");
-        return JSON.parse(cachedData);
-      }
-
-      const result = await this.pool.query(
-        "SELECT * FROM subjects ORDER BY id LIMIT $1 OFFSET $2",
-        [pageSize, offset]
-      );
-
-      const countSubjects = await this.pool.query(
-        "SELECT COUNT(*) FROM subjects"
-      );
-      const subjectsAmount = parseInt(countSubjects.rows[0].count);
-      const pagesAmount = Math.ceil(subjectsAmount / pageSize);
-
-      if (page > pagesAmount) {
-        throw new NotFoundException("Page not found");
-      }
-
-      const response = {
-        subjects: result.rows,
-        currentPage: page,
-        subjectsAmount,
-        pagesAmount,
-      };
-
-      await this.redisService.set(cacheKey, response, 84600);
-      console.log("Data was loaded to Redis");
-      return response;
-    } catch (error) {
-      console.error(error);
-      throw new InternalServerErrorException("Internal error occurred");
-    }
+    return Paginator.paginate(this.pool, this.redisService, "subjects", page, pageSize);
   }
 
   async getSubjectById(id: number) {
