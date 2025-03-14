@@ -78,7 +78,7 @@ export class StudentsService {
         pagesAmount,
       };
 
-      await this.redisService.set(cacheKey, response, 86400);
+      await this.redisService.set(cacheKey, JSON.stringify(response), 86400);
       console.log("Data was loaded to Redis");
       return response;
     } catch (error) {
@@ -105,7 +105,7 @@ export class StudentsService {
       throw new NotFoundException("Student was not found.");
     }
 
-    const response = result.rows[0];
+    const response = result.rows;
     await this.redisService.set(cacheKey, response, 86400);
     console.log("Data was loaded to Redis");
     return response;

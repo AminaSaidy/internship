@@ -10,14 +10,16 @@ export class RedisService {
   }
 
   async get(key: string): Promise<string | null> {
-    return this.redis.get(key);
+    const data = await this.redis.call('JSON.GET', key);
+    return data ? JSON.parse(data as string).data : null;
   }
 
   async set(key: string, value: any, ttl: number = 86400): Promise<void> {
-    await this.redis.set(key, JSON.stringify(value), "EX", ttl);
+    await this.redis.call('JSON.SET', key, '.', JSON.stringify(value));
+    await this.redis.expire(key, ttl);
   }
 
   async del(key: string): Promise<void> {
-    await this.redis.del(key);
+    await this.redis.call('JSON.DEL', key);
   }
 }
