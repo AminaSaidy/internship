@@ -67,7 +67,7 @@ export class SchoolsService {
 
     if (cachedData) {
       console.log("Data from Redis");
-      return JSON.parse(cachedData);
+      return cachedData;
     }
 
     const result = await this.pool.query(
@@ -77,7 +77,7 @@ export class SchoolsService {
     const response = result.rows[0] || null;
 
     if (response) {
-      await this.redisService.set(cacheKey, JSON.stringify(response), 86400);
+      await this.redisService.set(cacheKey, response, 86400);
       console.log("Data was loaded to Redis");
     }
 
