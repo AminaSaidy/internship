@@ -8,6 +8,7 @@ import { CreateClassDto } from "./dto/create-class.dto";
 import { ConfigService } from "@nestjs/config";
 import { DatabaseService } from "../db/database.service";
 import { RedisService } from "../redis/redis.service";
+import { Paginator } from "../paginator";
 
 @Injectable()
 export class ClassesService {
@@ -45,45 +46,7 @@ export class ClassesService {
   }
 
   async getClasses(page: number, pageSize: number) {
-    if (page < 1) page = 1;
-    const cacheKey = `classes_list_page_${page}`;
-
-    try {
-      const cachedData = await this.redisService.get(cacheKey);
-
-      if (cachedData) {
-        console.log("Data from Redis");
-        return JSON.parse(cachedData);
-      }
-
-      const countResult = await this.pool.query("SELECT COUNT(*) FROM classes");
-      const classesAmount = parseInt(countResult.rows[0].count);
-      const pagesAmount = Math.ceil(classesAmount / pageSize);
-
-      if (page > pagesAmount) {
-        return { error: "Page not found", status: 404 };
-      }
-
-      const offset = (page - 1) * pageSize;
-      const result = await this.pool.query(
-        "SELECT * FROM classes ORDER BY id LIMIT $1 OFFSET $2",
-        [pageSize, offset]
-      );
-
-      const response = {
-        classes: result.rows,
-        currentPage: page,
-        classesAmount,
-        pagesAmount,
-      };
-
-      await this.redisService.set(cacheKey, response, 7200);
-      console.log("Data was loaded to Redis");
-      return response;
-    } catch (error) {
-      console.error(error);
-      return { message: "Internal error", status: 500 };
-    }
+   return Paginator.paginate(this.pool, this.redisService, "classes", page, pageSize);
   }
 
   async getClassById(classId: number) {

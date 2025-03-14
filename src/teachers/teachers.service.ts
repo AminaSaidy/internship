@@ -5,6 +5,7 @@ import { ConfigService } from "@nestjs/config";
 import { AssignTeacherToClassDto } from "./dto/assign-teacher-to-class.dto";
 import { DatabaseService } from "../db/database.service";
 import { RedisService } from "../redis/redis.service";
+import { Paginator } from "../paginator";
 
 @Injectable()
 export class TeachersService {
@@ -31,42 +32,8 @@ export class TeachersService {
     }
   }
 
-  async getTeachers(page = 1) {
-    if (page < 1) page = 1;
-    const pageSize = 5;
-    const offset = (page - 1) * pageSize;
-    try {
-      const cacheKey = `teachers_list_page_${page}`;
-      const cachedData = await this.redisService.get(cacheKey);
-
-      if (cachedData) {
-        console.log("Data from Redis");
-        return JSON.parse(cachedData);
-      }
-
-      const result = await this.pool.query(
-        "SELECT * FROM teachers ORDER BY id LIMIT $1 OFFSET $2",
-        [pageSize, offset]
-      );
-      const countResult = await this.pool.query(
-        "SELECT COUNT(*) FROM teachers"
-      );
-      const teachersAmount = parseInt(countResult.rows[0].count);
-      const pagesAmount = Math.ceil(teachersAmount / pageSize);
-      const response = {
-        teachers: result.rows,
-        currentPage: page,
-        teachersAmount,
-        pagesAmount,
-      };
-
-      await this.redisService.set(cacheKey, response, 84600);
-      console.log("Data was loaded to Redis");
-
-      return response;
-    } catch (error) {
-      throw new Error("Error occurred while retrieving teachers.");
-    }
+  async getTeachers(page = 1, pageSize = 5) {
+   return Paginator.paginate(this.pool, this.redisService, "teachers", page, pageSize);
   }
 
   async getTeacherById(id: number) {
