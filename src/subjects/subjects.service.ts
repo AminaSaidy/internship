@@ -43,7 +43,13 @@ export class SubjectsService {
   }
 
   async getSubjects(page = 1, pageSize = 5) {
-    return Paginator.paginate(this.pool, this.redisService, "subjects", page, pageSize);
+    return Paginator.paginate(
+      this.pool,
+      this.redisService,
+      "subjects",
+      page,
+      pageSize
+    );
   }
 
   async getSubjectById(id: number) {
@@ -62,7 +68,7 @@ export class SubjectsService {
       );
 
       if (result.rows.length === 0) {
-        throw new NotFoundException("Subject was not found");
+        ErrorHandler.throwError("Subject was not found");
       }
 
       const response = result.rows[0];
@@ -117,7 +123,7 @@ export class SubjectsService {
       );
 
       if (classCheck.rows.length === 0 || subjectCheck.rows.length === 0) {
-        throw new BadRequestException("Class or subject does not exist.");
+        ErrorHandler.throwError("Class or subject does not exist.");
       }
 
       const result = await this.pool.query(

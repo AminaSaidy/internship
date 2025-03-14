@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  BadRequestException,
-} from "@nestjs/common";
+import { Injectable, BadRequestException } from "@nestjs/common";
 import { Pool } from "pg";
 import { CreateClassDto } from "./dto/create-class.dto";
 import { DatabaseService } from "../db/database.service";
@@ -29,7 +26,7 @@ export class ClassesService {
       );
 
       if (schoolCheck.rows.length === 0) {
-        throw new BadRequestException("School does not exist.");
+        ErrorHandler.throwError("School does not exist.");
       }
 
       const result = await this.pool.query(
@@ -44,7 +41,13 @@ export class ClassesService {
   }
 
   async getClasses(page: number, pageSize: number) {
-   return Paginator.paginate(this.pool, this.redisService, "classes", page, pageSize);
+    return Paginator.paginate(
+      this.pool,
+      this.redisService,
+      "classes",
+      page,
+      pageSize
+    );
   }
 
   async getClassById(classId: number) {
