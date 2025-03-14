@@ -9,6 +9,7 @@ import { ConfigService } from "@nestjs/config";
 import { DatabaseService } from "../db/database.service";
 import { RedisService } from "../redis/redis.service";
 import { Paginator } from "../paginator";
+import { ErrorHandler } from "../error-handler";
 
 @Injectable()
 export class ClassesService {
@@ -41,7 +42,7 @@ export class ClassesService {
       return result.rows[0];
     } catch (error) {
       console.error(error);
-      throw new Error("Error occurred while inserting classs.");
+      ErrorHandler.throwError("Error occurred while inserting classs.");
     }
   }
 
@@ -64,7 +65,7 @@ export class ClassesService {
     );
 
     if (result.rows.length === 0) {
-      throw new NotFoundException("Class was not found");
+      ErrorHandler.throwError("Class was not found");
     }
 
     const response = result.rows[0];

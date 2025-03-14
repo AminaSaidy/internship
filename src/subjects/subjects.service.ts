@@ -10,6 +10,7 @@ import { CreateSubjectDto } from "./dto/create-subject.dto";
 import { DatabaseService } from "../db/database.service";
 import { RedisService } from "../redis/redis.service";
 import { Paginator } from "../paginator";
+import { ErrorHandler } from "../error-handler";
 
 @Injectable()
 export class SubjectsService {
@@ -39,7 +40,7 @@ export class SubjectsService {
       return result.rows[0];
     } catch (error) {
       console.error(error);
-      throw new InternalServerErrorException("Internal error occurred");
+      ErrorHandler.throwError("Internal error occurred");
     }
   }
 
@@ -73,7 +74,7 @@ export class SubjectsService {
       return response;
     } catch (error) {
       console.error(error);
-      throw new InternalServerErrorException("Internal error occurred");
+      ErrorHandler.throwError("Internal error occurred");
     }
   }
 
@@ -102,7 +103,7 @@ export class SubjectsService {
       return response;
     } catch (error) {
       console.error(error);
-      throw new InternalServerErrorException("Internal error occurred");
+      ErrorHandler.throwError("Internal error occurred");
     }
   }
 
@@ -129,7 +130,7 @@ export class SubjectsService {
       return result.rows[0];
     } catch (error) {
       console.error(error);
-      throw new InternalServerErrorException("Internal error occurred");
+      ErrorHandler.throwError("Internal error occurred");
     }
   }
 }
