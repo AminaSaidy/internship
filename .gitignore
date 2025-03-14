@@ -53,3 +53,4 @@ coverage/
 *.tgz
 node_modules/
 dump.rdb
+.sql

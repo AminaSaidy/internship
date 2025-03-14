@@ -12,8 +12,9 @@ import {
 import { Response } from "express";
 import { ClassesService } from "./classes.service";
 import { CreateClassDto } from "./dto/create-class.dto";
+import { Routes } from '../routes';
 
-@Controller("api/classes")
+@Controller(Routes.CLASSES)
 export class ClassesController {
   constructor(private readonly classesService: ClassesService) {}
 
