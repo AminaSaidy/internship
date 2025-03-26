@@ -1,36 +1,36 @@
-version '3.8'
+version: "3.8"
 
 services:
   postgres-master:
-    contrainer_name: postgres-master
+    container_name: postgres-master
     build:
-    context: .
-    dockerfile: Dockerfile
-  enc_file:
-    - .env.docker
-  environment:
-    POSTGRES_USER: ${MASTER_ADMIN_USER}
-    POSTGRES_PASSWORD: ${MASTER_ADMIN_PASSWORD}
-    POSTGRES_DB: ${MASTER_ADMIN_DATABASE}
-    REPLICA_USER: ${REPLICA_USER}
-    REPLICA_PASSWORD: ${REPLICA_PASSWORD}
-  ports:
-  - "5432:5432"
-  volumes:
-  - pg_master_data:/var/lib/postgresql/data
-  restart: always
+      context: ./master
+      dockerfile: Dockerfile
+    env_file:
+      - .env.docker
+    environment:
+      POSTGRES_USER: ${MASTER_ADMIN_USER}
+      POSTGRES_PASSWORD: ${MASTER_ADMIN_PASSWORD}
+      POSTGRES_DB: ${MASTER_ADMIN_DATABASE}
+      REPLICA_USER: ${REPLICA_USER}
+      REPLICA_PASSWORD: ${REPLICA_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_master_data:/var/lib/postgresql/data
+    restart: always
 
   postgres-replica:
     container_name: postgres-replica
     build:
-      context: .
+      context: ./replica
       dockerfile: Dockerfile
-    enc_file:
-    - .env.docker
+    env_file:
+      - .env.docker
     environment:
       POSTGRES_USER: ${REPLICA_USER}
       POSTGRES_PASSWORD: ${REPLICA_PASSWORD}
-      POSTGRES_MASTER_HOST: POSTGRES-MASTER
+      POSTGRES_MASTER_HOST: postgres-master
     depends_on:
       - postgres-master
     volumes:
@@ -38,5 +38,5 @@ services:
     restart: always
 
 volumes:
-pg_master_data:
-pg_replica_data:
+  pg_master_data: {}
+  pg_replica_data: {}
